@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 5s # Intervallo frequente per test in tempo reale
+
+scrape_configs:
+  - job_name: 'sentiment-app-metrics'
+    static_configs:
+      # 'web-app' è il nome del servizio definito nel docker-compose
+      - targets: ['web-app:7860'] 
+

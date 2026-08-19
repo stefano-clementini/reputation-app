@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  web-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7860:7860"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7860/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  prometheus:
+    build:
+      context: .
+      dockerfile: Dockerfile.prometheus
+    # Cambiamo l'utente in root temporaneamente per evitare problemi di permessi sul volume Linux
+    user: "root"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d' # Mantiene i dati storici per 15 giorni
+    ports:
+      - "9090:9090"
+    volumes:
+      # Volume persistente per i dati storici delle metriche (TSDB)
+      - prometheus_data:/prometheus
+    depends_on:
+      web-app:
+        condition: service_healthy
+
+  grafana:
+    image: grafana/grafana:10.1.0
+    ports:
+      - "3000:3000"
+    user: "root"
+    volumes:
+      # Provisioning statico (sola lettura) delle dashboard e datasource
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/provisioning/dashboards/sentiment_dashboard.json:/var/lib/grafana/dashboards/sentiment_dashboard.json:ro
+      # Volume persistente per salvare utenti, sessioni e dashboard create a mano dall'interfaccia
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+
+# Definizione dei volumi persistenti gestiti da Docker
+volumes:
+  prometheus_data: # Mantiene lo storico dei dati temporali di inferenza
+  grafana_data:    # Mantiene le configurazioni utente e modifiche di Grafana
+
