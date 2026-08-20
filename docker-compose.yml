@@ -12,6 +12,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 20s
 
   prometheus:
     build:
@@ -20,6 +21,7 @@ services:
     # Cambiamo l'utente in root temporaneamente per evitare problemi di permessi sul volume Linux
     user: "root"
     command:
+      - '/bin/prometheus'
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention.time=15d' # Mantiene i dati storici per 15 giorni
