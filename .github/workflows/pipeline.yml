@@ -1,5 +1,7 @@
 name: CI/CD Multi-Container Pipeline with Grafana
 
+# Questo GitHub Actions workflow è disegnato per automatizzare i processi di building, testing e deploying di un'applicazione multi-container che include FastAPI, Prometheus e Grafana. 
+# Il workflow è formato da 2 jobs principali: integration tests e deployment su HuggingFace Spaces
 on:
   push:
     branches: [ main ]
@@ -48,6 +50,7 @@ jobs:
         fetch-depth: 0
 
     - name: Push to Hugging Face Spaces
+      # Configura le credenziali, che sono memorizzate in una secret, per il push su HuggingFace Spaces e forza il push del branch main
       env:
         HF_TOKEN: ${{ secrets.AI_ENG_TOKEN }}
       run: |

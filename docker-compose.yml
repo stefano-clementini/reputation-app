@@ -2,11 +2,17 @@ version: '3.8'
 
 services:
   web-app:
+  # Costruzione dell'immagine Docker per l'applicazione web
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "7860:7860"
+    volumes:
+      - adaptive_data:/code/data
+    environment:
+      - RETRAINING_MIN_SAMPLES=20
+      - RETRAINING_DRIFT_THRESHOLD=0.25
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7860/health"]
       interval: 10s
@@ -15,11 +21,16 @@ services:
       start_period: 20s
 
   prometheus:
+    # Costruzione dell'immagine Docker per Prometheus
     build:
       context: .
       dockerfile: Dockerfile.prometheus
     # Cambiamo l'utente in root temporaneamente per evitare problemi di permessi sul volume Linux
     user: "root"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d' # Mantiene i dati storici per 15 giorni
     ports:
       - "9090:9090"
     volumes:
@@ -30,6 +41,7 @@ services:
         condition: service_healthy
 
   grafana:
+    # Utilizzo dell'immagine ufficiale di Grafana
     image: grafana/grafana:10.1.0
     ports:
       - "3000:3000"
@@ -51,4 +63,5 @@ services:
 volumes:
   prometheus_data: # Mantiene lo storico dei dati temporali di inferenza
   grafana_data:    # Mantiene le configurazioni utente e modifiche di Grafana
+  adaptive_data:   # Mantiene feedback e modello adattivo tra i deploy
 

@@ -1,6 +1,6 @@
 FROM prom/prometheus:v2.45.0
 
-# Copia la configurazione di scraping
+# Copia la configurazione di Prometheus nel container
 COPY ./prometheus/prometheus.yml /etc/prometheus/prometheus.yml
 
 # Imposta la directory di lavoro e i permessi corretti per il volume dati
@@ -8,4 +8,5 @@ WORKDIR /prometheus
 
 EXPOSE 9090
 
+# Comando di avvio di Prometheus con i parametri specificati
 CMD [ "--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=15d" ]
