@@ -11,7 +11,7 @@ from app.retraining import AdaptiveSentimentTrainer, LABELS
 # Creazione dell'app FastAPI
 app = FastAPI(title="Sentiment Analysis API")
 
-# Endpoint /metrics nativo integrato in FastAPI
+# Endpoint /metrics nativo di Prometheus Python Client integrato in FastAPI
 metrics_app = make_asgi_app()
 app.mount("/metrics", metrics_app)
 
