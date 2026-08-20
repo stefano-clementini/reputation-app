@@ -49,11 +49,11 @@ jobs:
 
     - name: Push to Hugging Face Spaces
       env:
-        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        HF_TOKEN: ${{ secrets.AI_ENG_TOKEN }}
       run: |
         git config --global user.email "bot@github.com"
         git config --global user.name "GitHub Action Bot"
         
         # Deploy dell'app principale (FastAPI) su HF Spaces
-        git remote add hf https://USER:$HF_TOKEN@huggingface.co/spaces/UTENTE/NOME_SPACE
+        git remote add hf https://USER:$HF_TOKEN@huggingface.co/spaces/stefano-clementini/ai_eng
         git push hf main --force
