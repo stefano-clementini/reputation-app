@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from transformers import pipeline
 import time
@@ -90,14 +90,14 @@ async def predict_sentiment(input_data: TextInput):
     elapsed_time = time.time() - start_time
     
     # Registrazione metriche su Prometheus
-    SENTIMENT_COUNT.labels(sentiment_label=result['label']).inc()
+    SENTIMENT_COUNT.labels(sentiment_label=label).inc()
     LATENCY_HISTOGRAM.observe(elapsed_time)
     # Registrazione della predizione per il retraining
     adaptive_trainer.record_prediction(input_data.text, label, score)
     
     return SentimentOutput(
-        label=result['label'],
-        score=result['score'],
+        label=label,
+        score=score,
         elapsed_time=elapsed_time
     )
 
